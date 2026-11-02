@@ -1,0 +1,69 @@
+protocol: quic
+display_name: "QUIC"
+rfc: "RFC 9000"
+fields:
+  - name: header_form
+    offset: 0
+    size: 1
+    type: bits
+    bits: 1
+  - name: fixed_bit
+    offset: 0
+    size: 1
+    type: bits
+    bits: 1
+  - name: long_packet_type
+    offset: 0
+    size: 1
+    type: bits
+    bits: 2
+  - name: reserved
+    offset: 0
+    size: 1
+    type: bits
+    bits: 2
+  - name: packet_number_length
+    offset: 0
+    size: 1
+    type: bits
+    bits: 2
+  - name: version
+    offset: 1
+    size: 4
+    type: uint32
+  - name: dcid_length
+    offset: 5
+    size: 1
+    type: uint8
+  - name: dcid
+    offset: 6
+    size: variable
+    type: bytes
+  - name: scid_length
+    offset: variable
+    size: 1
+    type: uint8
+  - name: scid
+    offset: variable
+    size: variable
+    type: bytes
+  - name: payload
+    offset: variable
+    size: variable
+    type: bytes
+triggers:
+  - name: oversized_cid
+    field: dcid_length
+    value: 255
+  - name: version_negotiation
+    field: version
+    value: 0x00000000
+  - name: retry_loop
+    description: "Repeated retry packets"
+    field: long_packet_type
+    value: 3
+    repeat: 1000
+  - name: frame_flood
+    description: "Many small frames in payload"
+    field: payload
+    value: "connection_close_flood"

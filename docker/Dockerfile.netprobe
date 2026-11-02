@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y \
+    tshark tcpdump git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /netprobe
+COPY . .
+RUN pip install --no-cache-dir -e ".[dev]"
+
+ENV ASAN_OPTIONS="detect_leaks=0:abort_on_error=1:symbolize=1"
+
+ENTRYPOINT ["netprobe"]
+CMD ["--help"]

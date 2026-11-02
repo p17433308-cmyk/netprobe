@@ -1,0 +1,40 @@
+name: wireshark
+language: c
+parser_glob: "epan/dissectors/packet-*.c"
+harness_type: tshark
+decode_as_support: true
+
+build_cmd: |
+  mkdir -p build && cd build
+  cmake -DENABLE_ASAN=ON -DENABLE_UBSAN=ON -DCMAKE_BUILD_TYPE=Debug ..
+  make -j$(nproc) tshark
+
+sanitizer_flags: "-fsanitize=address,undefined -fno-omit-frame-pointer"
+
+dangerous_apis:
+  - tvb_memcpy
+  - tvb_get_string_enc
+  - tvb_get_ptr
+  - wmem_alloc
+  - g_malloc
+  - memcpy
+  - sprintf
+  - sscanf
+
+high_value_dissectors:
+  - packet-tls.c
+  - packet-http.c
+  - packet-http2.c
+  - packet-dns.c
+  - packet-smb2.c
+  - packet-dcerpc.c
+  - packet-mqtt.c
+  - packet-coap.c
+  - packet-modbus.c
+  - packet-dnp3.c
+  - packet-diameter.c
+  - packet-gtp.c
+  - packet-quic.c
+  - packet-bgp.c
+  - packet-ieee80211.c
+  - packet-bluetooth.c

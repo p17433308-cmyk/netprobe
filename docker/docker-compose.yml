@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  wireshark-asan:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.wireshark-asan
+    volumes:
+      - corpus:/corpus
+      - crashes:/crashes
+    entrypoint: ["sleep", "infinity"]
+
+  netprobe:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.netprobe
+    volumes:
+      - corpus:/corpus
+      - crashes:/crashes
+      - ./output:/output
+    depends_on:
+      - wireshark-asan
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+volumes:
+  corpus:
+  crashes:

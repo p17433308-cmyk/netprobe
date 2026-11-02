@@ -1,0 +1,53 @@
+protocol: coap
+display_name: "CoAP"
+rfc: "RFC 7252"
+fields:
+  - name: version
+    offset: 0
+    size: 1
+    type: bits
+    bits: 2
+    valid_values: [1]
+  - name: type
+    offset: 0
+    size: 1
+    type: bits
+    bits: 2
+    valid_values: [0,1,2,3]
+  - name: token_length
+    offset: 0
+    size: 1
+    type: bits
+    bits: 4
+  - name: code
+    offset: 1
+    size: 1
+    type: uint8
+  - name: message_id
+    offset: 2
+    size: 2
+    type: uint16
+  - name: token
+    offset: 4
+    size: variable
+    type: bytes
+  - name: options
+    offset: variable
+    size: variable
+    type: tlv_list
+  - name: payload_marker
+    size: 1
+    type: uint8
+    value: 0xFF
+triggers:
+  - name: oversized_token
+    field: token_length
+    value: 15
+  - name: option_loop
+    description: "Self-referencing option delta"
+    field: options
+    value: "delta_13_overflow"
+  - name: block_exhaustion
+    description: "Block2 with huge NUM"
+    field: options
+    value: "block2_max_num"

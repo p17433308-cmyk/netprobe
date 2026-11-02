@@ -1,0 +1,42 @@
+protocol: mqtt
+short_name: mqtt
+transport: tcp
+default_port: 1883
+fields:
+  - name: packet_type
+    type: uint4_high
+    size: 1
+    boundary_values: [1, 2, 3, 4, 8, 12, 14, 15, 0]
+  - name: flags
+    type: uint4_low
+    size: 0
+  - name: remaining_length
+    type: mqtt_varint
+    size: 0
+    description: "MQTT variable-length encoding (1-4 bytes)"
+    boundary_values: [0, 127, 128, 16383, 2097151, 268435455]
+  - name: protocol_name_length
+    type: uint16
+    size: 2
+    encoding: big
+  - name: protocol_name
+    type: string
+    size: 4
+    valid_values: ["MQTT", "MQIsdp"]
+  - name: protocol_level
+    type: uint8
+    size: 1
+    boundary_values: [3, 4, 5, 255, 0]
+  - name: connect_flags
+    type: uint8
+    size: 1
+  - name: keep_alive
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [0, 10, 65535]
+triggers:
+  - description: "Oversized remaining length (0xFF 0xFF 0xFF 0x7F)"
+  - description: "Invalid packet type 0 or 15"
+  - description: "Zero-length will topic with will flag set"
+  - description: "Protocol level 255"

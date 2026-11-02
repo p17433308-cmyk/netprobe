@@ -1,0 +1,10 @@
+name: tcpdump
+binary: tcpdump
+harness: tcpdump
+build:
+  type: autotools
+  sanitizers: [asan, ubsan]
+  flags: "CFLAGS=-fsanitize=address -fno-omit-frame-pointer -g"
+parser_glob: "print-*.c"
+parser_count_estimate: 200
+language: c

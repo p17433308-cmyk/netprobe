@@ -1,0 +1,33 @@
+protocol: grpc
+display_name: "gRPC"
+rfc: "gRPC over HTTP/2"
+fields:
+  - name: compressed_flag
+    offset: 0
+    size: 1
+    type: uint8
+    valid_values: [0, 1]
+  - name: message_length
+    offset: 1
+    size: 4
+    type: uint32
+  - name: message
+    offset: 5
+    size: variable
+    type: bytes
+triggers:
+  - name: oversized_message
+    field: message_length
+    value: 0xFFFFFFFF
+  - name: compressed_bomb
+    description: "Compressed flag set with decompression bomb"
+    field: compressed_flag
+    value: 1
+  - name: protobuf_depth
+    description: "Deeply nested protobuf message"
+    field: message
+    value: "nested_protobuf_100"
+  - name: varint_overflow
+    description: "Protobuf varint with >10 bytes"
+    field: message
+    value: "\\x80\\x80\\x80\\x80\\x80\\x80\\x80\\x80\\x80\\x80\\x01"

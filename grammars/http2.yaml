@@ -1,0 +1,54 @@
+protocol: http2
+display_name: "HTTP/2"
+rfc: "RFC 7540"
+fields:
+  - name: length
+    offset: 0
+    size: 3
+    type: uint24
+    description: "Frame payload length"
+  - name: type
+    offset: 3
+    size: 1
+    type: uint8
+    valid_values: [0,1,2,3,4,5,6,7,8,9]
+  - name: flags
+    offset: 4
+    size: 1
+    type: uint8
+  - name: reserved
+    offset: 5
+    size: 1
+    type: bit
+    bits: 1
+  - name: stream_id
+    offset: 5
+    size: 4
+    type: uint31
+  - name: payload
+    offset: 9
+    size: variable
+    type: bytes
+triggers:
+  - name: max_frame_size
+    description: "Frame length exceeding MAX_FRAME_SIZE"
+    field: length
+    value: "0xFFFFFF"
+  - name: settings_flood
+    description: "Rapid SETTINGS frames"
+    field: type
+    value: 4
+    repeat: 10000
+  - name: priority_cycle
+    description: "Circular stream dependency"
+    field: stream_id
+    value: 1
+  - name: continuation_flood
+    description: "Many CONTINUATION frames without END_HEADERS"
+    field: type
+    value: 9
+    repeat: 5000
+  - name: hpack_bomb
+    description: "HPACK table overflow"
+    field: payload
+    value: "dynamic_table_size_update_max"

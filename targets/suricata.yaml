@@ -1,0 +1,28 @@
+name: suricata
+language: rust
+parser_glob: "rust/src/**/*.rs"
+harness_type: suricata
+decode_as_support: false
+
+build_cmd: |
+  cargo build --features debug
+  # For C parts: CFLAGS="-fsanitize=address" ./configure && make
+
+dangerous_apis:
+  - unsafe
+  - from_raw_parts
+  - as_ptr
+  - transmute
+  - "libc::"
+  - ptr::read
+  - ptr::write
+
+high_value_parsers:
+  - dnp3
+  - dcerpc
+  - smb
+  - tls
+  - http2
+  - mqtt
+  - modbus
+  - nfs

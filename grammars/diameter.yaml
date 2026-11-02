@@ -1,0 +1,49 @@
+protocol: diameter
+display_name: "Diameter"
+rfc: "RFC 6733"
+fields:
+  - name: version
+    offset: 0
+    size: 1
+    type: uint8
+    value: 1
+  - name: message_length
+    offset: 1
+    size: 3
+    type: uint24
+  - name: command_flags
+    offset: 4
+    size: 1
+    type: uint8
+  - name: command_code
+    offset: 4
+    size: 4
+    type: uint24
+  - name: application_id
+    offset: 8
+    size: 4
+    type: uint32
+  - name: hop_by_hop_id
+    offset: 12
+    size: 4
+    type: uint32
+  - name: end_to_end_id
+    offset: 16
+    size: 4
+    type: uint32
+  - name: avps
+    offset: 20
+    size: variable
+    type: tlv_list
+triggers:
+  - name: length_overflow
+    field: message_length
+    value: "0xFFFFFF"
+  - name: avp_nesting
+    description: "Grouped AVPs nested deeply"
+    field: avps
+    value: "nested_grouped_avp_100"
+  - name: avp_length_mismatch
+    description: "AVP length exceeds message boundary"
+    field: avps
+    value: "avp_length_overflow"

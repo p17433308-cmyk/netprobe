@@ -1,0 +1,48 @@
+protocol: modbus
+display_name: "Modbus TCP"
+rfc: "Modbus Application Protocol V1.1b3"
+fields:
+  - name: transaction_id
+    offset: 0
+    size: 2
+    type: uint16
+  - name: protocol_id
+    offset: 2
+    size: 2
+    type: uint16
+    valid_values: [0]
+  - name: length
+    offset: 4
+    size: 2
+    type: uint16
+  - name: unit_id
+    offset: 6
+    size: 1
+    type: uint8
+  - name: function_code
+    offset: 7
+    size: 1
+    type: uint8
+  - name: data
+    offset: 8
+    size: variable
+    type: bytes
+triggers:
+  - name: oversized_pdu
+    field: length
+    value: 0xFFFF
+  - name: invalid_function
+    field: function_code
+    value: 0xFF
+  - name: coil_overflow
+    description: "Read coils with quantity > 2000"
+    field: data
+    value: "\\x00\\x00\\x07\\xD1"
+  - name: register_overflow
+    description: "Read registers with quantity > 125"
+    field: data
+    value: "\\x00\\x00\\x00\\x7E"
+  - name: write_multiple_overflow
+    description: "Write multiple with byte_count mismatch"
+    field: data
+    value: "\\x00\\x00\\x00\\x01\\xFF"

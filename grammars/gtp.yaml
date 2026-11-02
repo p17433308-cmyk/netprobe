@@ -1,0 +1,66 @@
+protocol: gtp
+display_name: "GTP"
+rfc: "3GPP TS 29.060 / TS 29.274"
+fields:
+  - name: version
+    offset: 0
+    size: 1
+    type: bits
+    bits: 3
+  - name: protocol_type
+    offset: 0
+    size: 1
+    type: bits
+    bits: 1
+  - name: reserved
+    offset: 0
+    size: 1
+    type: bits
+    bits: 1
+  - name: extension_header
+    offset: 0
+    size: 1
+    type: bits
+    bits: 1
+  - name: sequence_number
+    offset: 0
+    size: 1
+    type: bits
+    bits: 1
+  - name: npdu_number
+    offset: 0
+    size: 1
+    type: bits
+    bits: 1
+  - name: message_type
+    offset: 1
+    size: 1
+    type: uint8
+  - name: length
+    offset: 2
+    size: 2
+    type: uint16
+  - name: teid
+    offset: 4
+    size: 4
+    type: uint32
+  - name: ies
+    offset: 8
+    size: variable
+    type: tlv_list
+triggers:
+  - name: length_overflow
+    field: length
+    value: 0xFFFF
+  - name: extension_chain
+    description: "Long chain of extension headers"
+    field: extension_header
+    value: 1
+  - name: ie_overflow
+    description: "IE with length exceeding message"
+    field: ies
+    value: "ie_length_overflow"
+  - name: bearer_flood
+    description: "Create session with many bearer contexts"
+    field: ies
+    value: "bearer_context_flood"

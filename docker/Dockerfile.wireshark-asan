@@ -1,0 +1,64 @@
+FROM ubuntu:22.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential cmake ninja-build \
+    libglib2.0-dev libgcrypt20-dev \
+    flex bison python3 \
+    libpcap-dev libspeexdsp-dev \
+    libxml2-dev liblz4-dev \
+    libzstd-dev libnghttp2-dev \
+    libsnappy-dev libbrotli-dev \
+    libc-ares-dev libmaxminddb-dev \
+    libgnutls28-dev \
+    git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG WIRESHARK_VERSION=4.4.9
+RUN git clone --depth 1 --branch wireshark-${WIRESHARK_VERSION} \
+    https://gitlab.com/wireshark/wireshark.git /wireshark
+
+WORKDIR /wireshark/build
+
+RUN cmake -G Ninja .. \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+    -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+    -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" \
+    -DENABLE_GCOV=OFF \
+    -DENABLE_CAP=OFF \
+    -DENABLE_LUA=OFF \
+    -DENABLE_SBC=OFF \
+    -DENABLE_ILBC=OFF \
+    -DENABLE_OPUS=OFF \
+    -DBUILD_wireshark=OFF \
+    -DBUILD_androiddump=OFF \
+    -DBUILD_sshdump=OFF \
+    -DBUILD_ciscodump=OFF \
+    -DBUILD_randpktdump=OFF \
+    -DBUILD_udpdump=OFF \
+    && ninja tshark
+
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 libgcrypt20 libpcap0.8 \
+    libspeexdsp1 libxml2 liblz4-1 libzstd1 \
+    libnghttp2-14 libsnappy1v5 libbrotli1 \
+    libc-ares2 libmaxminddb0 libgnutls30 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /wireshark/build/run/tshark /usr/local/bin/tshark
+COPY --from=builder /wireshark/build/run/*.so* /usr/local/lib/
+COPY --from=builder /wireshark/build/run/epan/*.so* /usr/local/lib/
+COPY --from=builder /wireshark/build/run/wiretap/*.so* /usr/local/lib/
+COPY --from=builder /wireshark/build/run/wsutil/*.so* /usr/local/lib/
+
+RUN ldconfig
+
+ENV ASAN_OPTIONS="detect_leaks=0:abort_on_error=1:symbolize=1:allocator_may_return_null=1"
+ENV UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1"
+
+WORKDIR /netprobe
+ENTRYPOINT ["tshark"]

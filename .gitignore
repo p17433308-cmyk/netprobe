@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+.env
+*.log
+*.o
+*.so
+wireshark_src/
+docker/wireshark-*.tar.xz
+corpus/crashes/*.stderr
+scripts/hunt_v3.py

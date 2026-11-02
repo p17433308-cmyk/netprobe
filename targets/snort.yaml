@@ -1,0 +1,10 @@
+name: snort
+binary: snort
+harness: snort
+build:
+  type: cmake
+  sanitizers: [asan, ubsan]
+  flags: "-DCMAKE_C_FLAGS=-fsanitize=address -DCMAKE_CXX_FLAGS=-fsanitize=address"
+parser_glob: "src/service_inspectors/*/si_*.cc"
+parser_count_estimate: 50
+language: cpp

@@ -1,0 +1,62 @@
+protocol: smb2
+display_name: "SMB2/3"
+rfc: "MS-SMB2"
+fields:
+  - name: protocol_id
+    offset: 0
+    size: 4
+    type: bytes
+    value: "\\xFE\\x53\\x4D\\x42"
+  - name: structure_size
+    offset: 4
+    size: 2
+    type: uint16
+    value: 64
+  - name: credit_charge
+    offset: 6
+    size: 2
+    type: uint16
+  - name: status
+    offset: 8
+    size: 4
+    type: uint32
+  - name: command
+    offset: 12
+    size: 2
+    type: uint16
+  - name: credit_request
+    offset: 14
+    size: 2
+    type: uint16
+  - name: flags
+    offset: 16
+    size: 4
+    type: uint32
+  - name: next_command
+    offset: 20
+    size: 4
+    type: uint32
+  - name: message_id
+    offset: 24
+    size: 8
+    type: uint64
+  - name: session_id
+    offset: 40
+    size: 8
+    type: uint64
+triggers:
+  - name: compound_chain
+    description: "Chained commands with bad NextCommand offsets"
+    field: next_command
+    value: 1
+  - name: credit_overflow
+    field: credit_charge
+    value: 0xFFFF
+  - name: negotiate_overflow
+    description: "Negotiate with oversized dialect list"
+    field: command
+    value: 0
+  - name: create_path_overflow
+    description: "Create with very long filename"
+    field: command
+    value: 5

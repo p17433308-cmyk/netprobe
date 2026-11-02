@@ -1,0 +1,62 @@
+protocol: dnp3
+display_name: "DNP3"
+rfc: "IEEE 1815-2012"
+fields:
+  - name: start
+    offset: 0
+    size: 2
+    type: uint16
+    value: 0x0564
+  - name: length
+    offset: 2
+    size: 1
+    type: uint8
+  - name: control
+    offset: 3
+    size: 1
+    type: uint8
+  - name: destination
+    offset: 4
+    size: 2
+    type: uint16
+  - name: source
+    offset: 6
+    size: 2
+    type: uint16
+  - name: crc
+    offset: 8
+    size: 2
+    type: uint16
+  - name: transport_header
+    offset: 10
+    size: 1
+    type: uint8
+  - name: application_control
+    offset: 11
+    size: 1
+    type: uint8
+  - name: function_code
+    offset: 12
+    size: 1
+    type: uint8
+  - name: objects
+    offset: 13
+    size: variable
+    type: bytes
+triggers:
+  - name: length_overflow
+    field: length
+    value: 0xFF
+  - name: bad_crc
+    field: crc
+    value: 0x0000
+  - name: fragment_reassembly
+    description: "Many transport segments with FIR/FIN bits"
+    field: transport_header
+    value: "fragment_flood"
+  - name: unsolicited_response
+    field: function_code
+    value: 0x82
+  - name: deep_object_nesting
+    field: objects
+    value: "nested_group_variation"

@@ -1,0 +1,52 @@
+protocol: dcerpc
+display_name: "DCE/RPC"
+rfc: "C706 (DCE 1.1 RPC)"
+fields:
+  - name: version
+    offset: 0
+    size: 1
+    type: uint8
+    value: 5
+  - name: minor_version
+    offset: 1
+    size: 1
+    type: uint8
+  - name: packet_type
+    offset: 2
+    size: 1
+    type: uint8
+  - name: packet_flags
+    offset: 3
+    size: 1
+    type: uint8
+  - name: data_representation
+    offset: 4
+    size: 4
+    type: bytes
+  - name: frag_length
+    offset: 8
+    size: 2
+    type: uint16
+  - name: auth_length
+    offset: 10
+    size: 2
+    type: uint16
+  - name: call_id
+    offset: 12
+    size: 4
+    type: uint32
+triggers:
+  - name: fragment_overflow
+    field: frag_length
+    value: 0xFFFF
+  - name: auth_overflow
+    field: auth_length
+    value: 0xFFFF
+  - name: bind_flood
+    description: "Many context items in bind request"
+    field: packet_type
+    value: 11
+  - name: orphaned_fragment
+    description: "Fragment with no matching call_id"
+    field: packet_flags
+    value: 0x20

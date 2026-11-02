@@ -1,0 +1,36 @@
+protocol: http
+short_name: http
+transport: tcp
+default_port: 80
+fields:
+  - name: method
+    type: string
+    size: 0
+    valid_values: ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "CONNECT", "TRACE"]
+  - name: uri
+    type: string
+    size: 0
+  - name: version
+    type: string
+    size: 0
+    valid_values: ["HTTP/1.0", "HTTP/1.1", "HTTP/2"]
+  - name: host_header
+    type: string
+    size: 0
+  - name: content_length
+    type: uint32
+    size: 4
+    boundary_values: [0, 1, 65535, 4294967295]
+  - name: transfer_encoding
+    type: string
+    size: 0
+    valid_values: ["chunked", "gzip", "deflate", "identity"]
+triggers:
+  - description: "Oversized header value"
+    pattern: "Header: AAAA...65535"
+  - description: "Chunked encoding abuse"
+    pattern: "Transfer-Encoding: chunked with FFFFFFFE size"
+  - description: "NULL bytes in header"
+    pattern: "X-Pad: \\x00 * 1024"
+  - description: "HTTP request smuggling"
+    pattern: "Content-Length + Transfer-Encoding conflict"

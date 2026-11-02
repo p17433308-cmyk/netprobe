@@ -1,0 +1,52 @@
+protocol: dns
+short_name: dns
+transport: udp
+default_port: 53
+fields:
+  - name: transaction_id
+    type: uint16
+    size: 2
+    encoding: big
+  - name: flags
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [0x0100, 0x8180, 0x8183, 0xFFFF, 0x0000]
+  - name: questions
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [0, 1, 255, 65535]
+  - name: answer_rrs
+    type: uint16
+    size: 2
+    encoding: big
+  - name: authority_rrs
+    type: uint16
+    size: 2
+    encoding: big
+  - name: additional_rrs
+    type: uint16
+    size: 2
+    encoding: big
+  - name: qname
+    type: dns_name
+    size: 0
+    description: "DNS encoded domain name with length-prefixed labels"
+  - name: qtype
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [1, 2, 5, 6, 15, 16, 28, 33, 255, 65535]
+  - name: qclass
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [1, 3, 4, 255]
+triggers:
+  - description: "Compression pointer loop"
+    payload_hex: "c00c"
+  - description: "Max label length"
+    payload_hex: "3f"
+  - description: "Oversized name"
+    payload_hex: "ff"

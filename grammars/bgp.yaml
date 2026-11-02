@@ -1,0 +1,46 @@
+protocol: bgp
+display_name: "BGP"
+rfc: "RFC 4271"
+fields:
+  - name: marker
+    offset: 0
+    size: 16
+    type: bytes
+    value: "\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF"
+  - name: length
+    offset: 16
+    size: 2
+    type: uint16
+  - name: type
+    offset: 18
+    size: 1
+    type: uint8
+    valid_values: [1, 2, 3, 4, 5]
+  - name: data
+    offset: 19
+    size: variable
+    type: bytes
+triggers:
+  - name: oversized_message
+    field: length
+    value: 0xFFFF
+  - name: update_overflow
+    description: "UPDATE with oversized path attributes"
+    field: type
+    value: 2
+  - name: open_overflow
+    description: "OPEN with many optional parameters"
+    field: type
+    value: 1
+  - name: bad_marker
+    description: "Marker not all 0xFF"
+    field: marker
+    value: "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00"
+  - name: as_path_loop
+    description: "UPDATE with circular AS_PATH"
+    field: data
+    value: "as_path_cycle"
+  - name: prefix_overflow
+    description: "NLRI with prefix length > 32"
+    field: data
+    value: "prefix_length_255"

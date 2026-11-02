@@ -1,0 +1,54 @@
+protocol: wireguard
+display_name: "WireGuard"
+rfc: "WireGuard Protocol"
+fields:
+  - name: message_type
+    offset: 0
+    size: 1
+    type: uint8
+    valid_values: [1, 2, 3, 4]
+  - name: reserved
+    offset: 1
+    size: 3
+    type: bytes
+  - name: sender_index
+    offset: 4
+    size: 4
+    type: uint32
+  - name: unencrypted_ephemeral
+    offset: 8
+    size: 32
+    type: bytes
+  - name: encrypted_static
+    offset: 40
+    size: 48
+    type: bytes
+  - name: encrypted_timestamp
+    offset: 88
+    size: 28
+    type: bytes
+  - name: mac1
+    offset: 116
+    size: 16
+    type: bytes
+  - name: mac2
+    offset: 132
+    size: 16
+    type: bytes
+triggers:
+  - name: invalid_type
+    field: message_type
+    value: 0xFF
+  - name: oversized_handshake
+    description: "Handshake initiation with trailing data"
+    field: reserved
+    value: "trailing_data_1000"
+  - name: cookie_flood
+    description: "Rapid cookie reply messages"
+    field: message_type
+    value: 3
+    repeat: 10000
+  - name: transport_flood
+    description: "Transport data with counter wrap"
+    field: message_type
+    value: 4

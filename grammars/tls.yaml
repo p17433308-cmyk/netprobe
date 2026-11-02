@@ -1,0 +1,53 @@
+protocol: tls
+short_name: tls
+transport: tcp
+default_port: 443
+fields:
+  - name: content_type
+    type: uint8
+    size: 1
+    boundary_values: [20, 21, 22, 23, 255, 0]
+  - name: version
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [0x0301, 0x0302, 0x0303, 0x0304, 0xFFFF, 0x0000]
+  - name: length
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [0, 1, 16384, 65535]
+  - name: handshake_type
+    type: uint8
+    size: 1
+    boundary_values: [1, 2, 11, 12, 13, 14, 15, 16, 255]
+  - name: handshake_length
+    type: uint24
+    size: 3
+    encoding: big
+    boundary_values: [0, 1, 16777215]
+  - name: client_version
+    type: uint16
+    size: 2
+    encoding: big
+  - name: random
+    type: bytes
+    size: 32
+  - name: session_id_length
+    type: uint8
+    size: 1
+    boundary_values: [0, 32, 255]
+  - name: cipher_suites_length
+    type: uint16
+    size: 2
+    encoding: big
+  - name: extensions_length
+    type: uint16
+    size: 2
+    encoding: big
+    boundary_values: [0, 65535]
+triggers:
+  - description: "Corrupt record length 0xFFFF"
+  - description: "Oversized extensions"
+  - description: "Malformed SNI extension"
+  - description: "Truncated handshake"
